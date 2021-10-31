@@ -1,0 +1,8 @@
+EasyProcess==0.3
+imageio==2.10.1
+numpy==1.21.3
+Pillow==8.4.0
+PyVirtualDisplay==2.1
+selenium==3.141.0
+tqdm==4.59.0
+urllib3==1.26.3
