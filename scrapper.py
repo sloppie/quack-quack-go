@@ -489,10 +489,8 @@ def attempt_recovery(input_file):
 
 
 def fetch_images(web_driver, input_file, export_images):
-    remaining_categories = None
-    print(input_file)
     # By default atemt of recovery is tried
-    remaining_categories - attempt_recovery(input_file)
+    remaining_categories = attempt_recovery(input_file)
     print(f"remaining searches are: {len(remaining_categories)}")
     
     for category, output_filename, limit in remaining_categories:
