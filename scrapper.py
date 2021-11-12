@@ -356,34 +356,60 @@ def download_images(web_driver, search_value, target_location, limit, export_ima
 
     link_list = []  # stores all the collected links in while scrapping the category
 
+    # createa a flag to monitor whether the process failed somewhere in between,
+    # an example where attempts to move to the next image continouosly fail, this
+    # means that the problem is probably the webpage reloaded
+    is_successful = True
+
     # context manager for a 600 image file size
     with tqdm(total=limit) as progress_bar:
-        is_first_image = True  # determines whether a click() action will be performed before the scrapping link starts
-        while len(link_list) < limit:
+        # determines whether a click() action will be performed before the
+        # scrapping link starts
+        is_first_image = True 
+
+        while len(link_list) < limit and is_successful:
             # fetching the first image requires a slightly different process so we have to confirm
             # whether it is the fist image or not
             for action in search_action_graph:
                 if action.__name__ == "get_selected_image_link":
                     img_link = action(web_driver, is_first_image)
 
-                    link_list.append(img_link)
-                    progress_bar.update(1)  # update progress with new image
+                    # check whether the image img_link is empty string as this is 
+                    # leading to errors in the second image
+                    if img_link:
+                        link_list.append(img_link)
+                        progress_bar.update(1)  # update progress with new image
+                    else:
+                        continue
 
                     if is_first_image:  # the first image has now already been clicked
                         is_first_image = False
                 else:
                     is_success = False
+                    # Retry getting the image thrice, if no success, break out
+                    # of the loop and move to the next category, we will try to recover
+                    # later on
+                    retry_count = 0
                     while not is_success:
-                        is_success = action(web_driver)
+                        if retry_count < 10:
+                            is_success = action(web_driver)
+                        else:
+                            is_successful = False
+                            break
+                        
+    # we only export the images if the process did not fail somewhere in
+    # between
+    if is_successful:
+        # instead of maintaining a list which may increase the amount of memory needed to eun the program for excessively
+        # large lists, it was opted to create a data dir and the search_keyword.txt file after the function continues
+        # executing
+        # dump all the links into a file before proceeding
+        export_scrapped_links(link_list, target_location)
 
-    # instead of maintaining a list which may increase the amount of memory needed to eun the program for excessively
-    # large lists, it was opted to create a data dir and the search_keyword.txt file after the function continues
-    # executing
-    # dump all the links into a file before proceeding
-    export_scrapped_links(link_list, target_location)
-
-    if export_images:
-        export_scrapped_images(link_list, target_location)
+        if export_images:
+            export_scrapped_images(link_list, target_location)
+    else:
+        print(f"Unable to fetch images for: {search_value}")
 
 
 # this method is used to remove the '/' substr that may confuse the compiler to thinking that we are going a sub
