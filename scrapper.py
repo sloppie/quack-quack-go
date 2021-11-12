@@ -474,18 +474,20 @@ def attempt_recovery(input_file):
         for item in initial_list:
             try:
                 txt_file, out_dir = get_output_location(input_file, item)
-                tsx_exists = os.path.exists(txt_file)
                 out_dir_exists = os.path.exists(out_dir)
                 out_dir_has_children = False
                 if out_dir_exists:
                    out_dir_has_children = len(os.listdir(out_dir)) > 0
                 
-                if not out_dir_has_children or not tsx_exists:
+                # We only check if the images are there:
+                if not out_dir_has_children:
                     # this means that the object has not been properly scrapped
                     # thus can be added to the list
-                    remaining_list(item)
+                    remaining_list.append(item)
             except:
                 pass
+    
+    return remaining_list
 
 
 def fetch_images(web_driver, input_file, export_images):
