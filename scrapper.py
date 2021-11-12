@@ -393,6 +393,7 @@ def download_images(web_driver, search_value, target_location, limit, export_ima
                     while not is_success:
                         if retry_count < 10:
                             is_success = action(web_driver)
+                            retry_count += 1
                         else:
                             is_successful = False
                             break
