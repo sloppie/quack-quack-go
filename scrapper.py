@@ -469,7 +469,7 @@ def attempt_recovery(input_file):
     remaining_list = []
 
     with open(input_file, "r", encoding="utf8") as open_input_file:
-        initial_list = json.loads(open_input_file)
+        initial_list = json.loads(open_input_file.read())
 
         for item in initial_list:
             try:
