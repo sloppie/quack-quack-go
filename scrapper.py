@@ -428,36 +428,72 @@ def export_scrapped_images(image_links, target_location):
             print(e)
 
 
-def attempt_recovery(expected_downloads, image_type):
-    print(f"attempting recovery for {image_type} images...")
-    # this function first looks for the image type input by the user, if explicit, it looks in the "data" dir
-    # else if "neutral", it looks in the "neutral-data" dir
-    already_downloaded = None  # store all the filenames of the relevant directory
-    if image_type == "explicit":
-        already_downloaded = [f.name.replace(".txt", "") for f in os.scandir("data")]
-    else:
-        already_downloaded = [f.name.replace(".txt", "") for f in os.scandir("neutral-data")]
+def get_output_location(input_file, config_arr):
+    category, output_filename, limit = config_arr
 
-    remaining_list = []
-    for img_category in tqdm(expected_downloads):
+    # each category is in the format:
+    # [search_string: str, output_filename: str, limit: int]
+    search_term = f"{category} pictures"
+    split_dirs = input_file.split("/")
+    out_location = ""
+
+    # Generate the output directory
+    for i in range(len(split_dirs)):
+        # This is to allow for the same files in the same path as the
+        # project to still be made into directories
+        if i == 0 and len(split_dirs) > 1:
+            out_location = split_dirs[0]
+            continue
+    
+        if i != len(split_dirs) - 1:
+            out_location += f"/{split_dirs[i]}"
+
+    # Result will be stored in the /out directory
+    # To cater for same directory files, we need to make sure that the
+    # out_location string is not an empty string
+    out_location += "/out" if out_location != "" else "out"
+    # Make sure the out dir exists before trying to pass the location
+    if not os.path.exists(out_location):
         try:
-            if img_category:
-                # for the edge case that contains the substr "/", it needs to be replaced snce that will be wrongly
-                # interpreted as a sub directory. As such it will be replaced with " "
-                already_downloaded.index(normalize_str(img_category.replace("\n", "")))
-        except Exception as not_found:
-            # if an exception is thrown, the item has not yet been downloaded thus we can add it to the list of items
-            # that need to be downloaded.
-            remaining_list.append(img_category.replace("\n", ""))
+            os.makedirs(out_location)
+        except:
+            pass
 
-    return remaining_list
+    out_location += f"/{output_filename}.txt"
+
+    return out_location, out_location.replace(".txt", "")
+
+
+
+def attempt_recovery(input_file):
+    remaining_list = []
+
+    with open(input_file, "r", encoding="utf8") as open_input_file:
+        initial_list = json.loads(open_input_file)
+
+        for item in initial_list:
+            try:
+                txt_file, out_dir = get_output_location(input_file, item)
+                tsx_exists = os.path.exists(txt_file)
+                out_dir_exists = os.path.exists(out_dir)
+                out_dir_has_children = False
+                if out_dir_exists:
+                   out_dir_has_children = len(os.listdir(out_dir)) > 0
+                
+                if not out_dir_has_children or not tsx_exists:
+                    # this means that the object has not been properly scrapped
+                    # thus can be added to the list
+                    remaining_list(item)
+            except:
+                pass
 
 
 def fetch_images(web_driver, input_file, export_images):
     remaining_categories = None
     print(input_file)
-    with open(input_file, "r", encoding="utf8") as open_input_file:
-        remaining_categories = json.loads(open_input_file.read())
+    # By default atemt of recovery is tried
+    remaining_categories - attempt_recovery(input_file)
+    print(f"remaining searches are: {len(remaining_categories)}")
     
     for category, output_filename, limit in remaining_categories:
         # each category is in the format:
