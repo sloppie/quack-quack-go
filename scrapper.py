@@ -497,6 +497,7 @@ def attempt_recovery(input_file):
 
     with open(input_file, "r", encoding="utf8") as open_input_file:
         initial_list = json.loads(open_input_file.read())
+        print(f"initial list: {len(initial_list)}")
 
         for item in initial_list:
             try:
