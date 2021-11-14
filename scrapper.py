@@ -307,6 +307,10 @@ def get_selected_image_link(web_driver, is_first_image):
             print(f"{ex.__class__.__name__}: Unable to fetch \"href\" attr of selected image")
 
             return ""  # shows that the image was not found
+        except Exception as xp:
+            print(f"{xp.__class__.__name__}: Unable to fetch \"href\"")
+
+            return "" # image was not found
 
 
 def move_to_next_image(web_driver):
