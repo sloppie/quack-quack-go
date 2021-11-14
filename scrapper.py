@@ -284,6 +284,8 @@ def get_selected_image_link(web_driver, is_first_image):
             web_driver.execute_script("arguments[0].scrollIntoView", selected_image_desc)
         except TimeoutException as te:
             print(f"{te.__class__.__name__}: Unable to scroll in the selected image into view")
+        except Exception as ex:
+            print(f"{ex.__class__.__name__}: Unable to scroll in the selected image into view")
 
         try:
             anchor_tag = WebDriverWait(web_driver, 15).until(
@@ -293,6 +295,11 @@ def get_selected_image_link(web_driver, is_first_image):
             return image_href
         except TimeoutException as ex:
             print(f"{ex.__class__.__name__}: Unable to fetch \"href\" attr of selected image")
+
+            return ""
+        except Exception as tex:
+            print(f"{tex.__class__.__name__}: Unable to fetch \"href\" attr of selected image")
+
             return ""
     else:
         try:
@@ -448,7 +455,8 @@ def export_scrapped_links(image_links, target_location):
     for image_link in image_links:
         data += f"{image_link}\n"
     
-    # Images are either saved in the "neutral-data" folder or the "data" based on the image_type
+    # Images are either saved in the "neutral-data" folder or the "data"
+    # based on the image_type
     link_file = open(target_location, "w")
 
     link_file.write(data)
