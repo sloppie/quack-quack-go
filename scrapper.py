@@ -347,7 +347,20 @@ def download_images(web_driver, search_value, target_location, limit, export_ima
 
     time.sleep(3)
 
-    select_first_image(driver)
+    for retry_attempt in range(10):
+        # We give this whole exercise 10 attempts, if by the 10th it hasnt
+        # happened, we deem it as an unsuccessful search and proceed to the
+        # next one
+        first_image_selected = select_first_image(driver)
+
+        if first_image_selected:
+            break
+
+        if retry_attempt == 9:
+            print(f"Unable to select_first_image for: {search_value}")
+            # Break out since selection was not possible
+            return
+
     # tries to run the whole thing like a graph
     search_action_graph = [
         get_selected_image_link,
@@ -380,7 +393,11 @@ def download_images(web_driver, search_value, target_location, limit, export_ima
                         link_list.append(img_link)
                         progress_bar.update(1)  # update progress with new image
                     else:
-                        continue
+                        # There is an index out of range problem (probably)
+                        # and it would just be better to terminate this search
+                        # rather than continue in an endless loop
+                        is_successful = False
+                        break
 
                     if is_first_image:  # the first image has now already been clicked
                         is_first_image = False
