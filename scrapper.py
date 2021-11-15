@@ -544,8 +544,6 @@ def attempt_recovery(input_file):
             except:
                 pass
 
-    print(remaining_list)
-
     return remaining_list
 
 
