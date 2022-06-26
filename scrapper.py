@@ -47,9 +47,8 @@ def search_for_item_from_homepage(web_driver, value):
     try:
         web_driver.get("https://duckduckgo.com")
         # get the search form of the duckduckgo search engine
-        print(web_driver)
         search_form = WebDriverWait(web_driver, timeout=10).until(
-            lambda d: d.find_element_by_id("search_form_input_homepage")
+            lambda d: d.find_element(By.ID, "search_form_input_homepage")
         )
         search_form.click()
         search_form.send_keys(value)  # enter search
@@ -66,7 +65,7 @@ def search_for_item(web_driver, value):
     try:
         # get the search form of the duckduckgo search engine
         search_form = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_id("search_form_input")
+            lambda d: web_driver.find_element(By.ID, "search_form_input")
         )
         # search_form.click()
         try:
@@ -77,7 +76,7 @@ def search_for_item(web_driver, value):
         search_form.send_keys(Keys.RETURN)
 
         search_form = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_id("search_form_input")
+            lambda d: web_driver.find_element(By.ID, "search_form_input")
         )
 
         search_val = search_form.get_attribute("value")
@@ -92,16 +91,17 @@ def search_for_item(web_driver, value):
 def turn_off_search_moderation(web_driver):
     try:
         filter_menu = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_xpath(
+            lambda d: web_driver.find_element(By.XPATH,
                 "/html/body/div[2]/div[5]/div[3]/div/div[1]/div[1]/div/div[2]/a"))
         filter_menu.click()
         off_option = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_xpath("/html/body/div[6]/div[2]/div/div/ol/li[3]/a")
-        )
+            lambda d: web_driver.find_element(By.XPATH,
+                "/html/body/div[6]/div[2]/div/div/ol/li[3]/a"))
         off_option.click()
         res = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_xpath(
-                "/html/body/div[2]/div[5]/div[3]/div/div[1]/div[1]/div/div[2]/a").text == "Safe Search: Off"
+            lambda d: web_driver.find_element(By.XPATH,
+                "/html/body/div[2]/div[5]/div[3]/div/div[1]/div[1]/div/div[2]/a"
+            ).text == "Safe Search: Off"
         )
         if res:
             print("Safe search Moderation off")
@@ -119,10 +119,10 @@ def select_image_tab(web_driver):
     time.sleep(1)
     try:
         duckbar = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_id("duckbar_static")
+            lambda d: web_driver.find_element(By.ID, "duckbar_static")
         )
         items = WebDriverWait(duckbar, timeout=15).until(
-            lambda d: duckbar.find_elements_by_class_name("zcm__link")
+            lambda d: duckbar.find_elements(By.CLASS_NAME, "zcm__link")
         )
         time.sleep(1)
         for list_item in items:
@@ -133,7 +133,7 @@ def select_image_tab(web_driver):
 
         # verify that the active tab element in #duckbar_static is "Images"
         duckbar = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_id("duckbar_static")
+            lambda d: web_driver.find_element(By.ID, "duckbar_static")
         )
         active_tab = WebDriverWait(web_driver, timeout=10).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "is-active"))
@@ -153,10 +153,10 @@ def set_image_size(web_driver, image_size = "Large"):
         size_dropdown.click()  # open modal dropdown
         time.sleep(2)
         modal_dropdown = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_class_name("modal__list")
+            lambda d: web_driver.find_element(By.CLASS_NAME, "modal__list")
         )
         anchor_elements = WebDriverWait(modal_dropdown, timeout=15).until(
-            lambda d: modal_dropdown.find_elements_by_tag_name("a")
+            lambda d: modal_dropdown.find_elements(By.TAG_NAME, "a")
         )
 
         # Makes sure the modal dropdown is displayed before attempting to continue
@@ -191,7 +191,7 @@ def set_image_type(web_driver, image_type = "Photograph"):
         )
         type_dropdown.click()  # open the modal
         time.sleep(1)
-        anchor_elements = web_driver.find_elements_by_class_name("js-dropdown-items")
+        anchor_elements = web_driver.find_elements(By.CLASS_NAME, "js-dropdown-items")
 
         # Makes sure the type dropdown is displayed before attempting to continue
         while not type_dropdown.is_displayed():
@@ -230,9 +230,9 @@ def set_moderation(web_driver, moderation_type):
         )
         filter_dropdown.click()
         modal_list = WebDriverWait(web_driver, timeout=15).until(
-            lambda d: web_driver.find_element_by_class_name("modal__list")
+            lambda d: web_driver.find_element(By.CLASS_NAME, "modal__list")
         )
-        anchor_elements = modal_list.find_elements_by_tag_name("a")
+        anchor_elements = modal_list.find_elements(By.TAG_NAME, "a")
 
         # Makes sure the modal list is displayed before attempting to continue
         while not modal_list.is_displayed():
