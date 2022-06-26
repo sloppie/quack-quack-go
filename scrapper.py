@@ -1,7 +1,6 @@
-import io
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver import ChromeOptions, Chrome
-from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium import webdriver;
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -20,9 +19,10 @@ executable_path = "chrome-driver/chromedriver.exe" if re.search("Windows", platf
     else "chrome-driver/chromedriver"
 
 
-PATH = "C:\\Program Files (x86)\\web-drivers\\chrome\\chromedriver.exe"
 display = None  # contains the display used on the server
-chrome_options = ChromeOptions()
+chrome_options = webdriver.ChromeOptions()
+
+chrome_service = Service(executable_path=executable_path)
 
 # Incognito is always set on a local Windows machines
 if re.search("Windows", platform.platform()):
@@ -34,16 +34,22 @@ else:
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-driver = Chrome(executable_path=executable_path, options=chrome_options)
+driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
 
 def search_for_item_from_homepage(web_driver, value):
+    """
+    Makes a test search to move the duckduckgo search bar to the top of the page
+    :param web_driver: WebDriver
+    :param value: str
+    """
     print(f"Searching for {value}")
     try:
         web_driver.get("https://duckduckgo.com")
         # get the search form of the duckduckgo search engine
-        search_form = WebDriverWait(web_driver, timeout=5).until(
-            lambda d: web_driver.find_element_by_id("search_form_input_homepage")
+        print(web_driver)
+        search_form = WebDriverWait(web_driver, timeout=10).until(
+            lambda d: d.find_element_by_id("search_form_input_homepage")
         )
         search_form.click()
         search_form.send_keys(value)  # enter search
